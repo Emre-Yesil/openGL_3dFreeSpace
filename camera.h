@@ -35,7 +35,9 @@ public:
     }
 
     void processInput(GLFWwindow* window) {
-        float cameraSpeed = 0.1f;
+        float cameraSpeed = 0.2f;
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            cameraSpeed *= 3.0f;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
             cameraPos += cameraSpeed * cameraFront;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)

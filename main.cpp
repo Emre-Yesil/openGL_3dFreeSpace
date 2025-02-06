@@ -55,30 +55,47 @@ int main() {
         -1000.0f,  0.0f, -1000.0f,  0.0f, 10.0f,
         -1000.0f,  0.0f,  1000.0f,  0.0f, 0.0f
     };
-    float groundVertices2[] = {
-        // positions         // texCoords
-         10.0f,  -10.0f, 0.0f, 1.0f, 0.0f,
-         10.0f,  10.0f,  0.0f, 1.0f, 1.0f,
-        -10.0f,  10.0f,  0.0f, 0.0f, 1.0f,
-        -10.0f,  -10.0f, 0.0f, 0.0f, 0.0f
+    float wallVerticies[] = {
+        // positions                    // texCoords
+         1000.0f,  0.0f,    1000.0f,      10.0f, 0.0f,
+        -1000.0f,  0.0f,    1000.0f,      0.0f, 0.0f,
+        -1000.0f,  1000.0f, 1000.0f,      0.0f, 10.0f,
+         1000.0f,  1000.0f, 1000.0f,      10.0f, 10.0f
     };
-    unsigned int groundIndices[] = {
+    unsigned int indices1[] = {
         0, 1, 2,
         2, 3, 0 };
 
     //bind objects
     unsigned int VAOs[3], VBOs[3], EBOs[3];
+        //the ground
     glGenVertexArrays(1, &VAOs[0]);
     glGenBuffers(1, &VBOs[0]);
     glGenBuffers(1, &EBOs[0]);
 
     glBindVertexArray(VAOs[0]);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBOs[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(groundVertices), groundVertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[0]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(groundIndices), groundIndices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices1), indices1, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+        //the wall
+    glGenVertexArrays(1, &VAOs[1]);
+    glGenBuffers(1, &VBOs[1]);
+    glGenBuffers(1, &EBOs[1]);
+
+    glBindVertexArray(VAOs[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(wallVerticies), wallVerticies, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOs[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices1), indices1, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
@@ -121,8 +138,6 @@ int main() {
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, textures[2]);
         myShader.setInt("textures[2]", 2);
-
-        myShader.setInt("selTex", 2);
     
         //processInput(window);
             //wasd
@@ -145,9 +160,9 @@ int main() {
 
         //transformations
         glm::mat4 view = myCamera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 1000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 10000.0f);
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -4.0f, -32.0f));
+        model = glm::translate(model, glm::vec3(0.0f, -100.0f, -10.0f));
         //model = glm::rotate(model, glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f));
      
         myShader.setMat4("view", view);
@@ -155,8 +170,13 @@ int main() {
         myShader.setMat4("model", model);
 
         //draw element
+        myShader.setInt("selTex", 2);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+        glBindVertexArray(VAOs[1]);
+        myShader.setInt("selTex", 1);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
