@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <string>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -22,6 +23,7 @@ void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
 void setTexData(const char* fileName);
 
 int main() {
+    //set openGL glfw glad
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -39,12 +41,13 @@ int main() {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
+    //set frames and depth
     glfwSetFramebufferSizeCallback(window, frameBufferSizeCallback);
     glEnable(GL_DEPTH_TEST);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-   
+
+    //object verticies
     float groundVertices[] = {
         // positions          // texCoords
          1000.0f,  0.0f,  1000.0f,  10.0f, 0.0f,
@@ -63,6 +66,7 @@ int main() {
         0, 1, 2,
         2, 3, 0 };
 
+    //bind objects
     unsigned int VAOs[3], VBOs[3], EBOs[3];
     glGenVertexArrays(1, &VAOs[0]);
     glGenBuffers(1, &VBOs[0]);
@@ -81,6 +85,7 @@ int main() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    //textures
     unsigned int textures[3];
     glGenTextures(3, textures);
 
@@ -93,16 +98,18 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, textures[2]);
     setTexData("grass.jpg");
 
+    //objects
     shader myShader("vShader.vert", "fShader.frag");
 
     camera myCamera(cameraPos, cameraFront, cameraUp, (float)(WIN_WIDTH / 2), (float)(WIN_WIDTH / 2), window, cameraFront);
     
-    glfwSetCursorPosCallback(window, myCamera.mouseCallbackWrapper);
-
+    //main loop
     while (!glfwWindowShouldClose(window)) {
+        //background color and depth
         glClearColor(0.5f, 0.7f, 0.9f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //set textures
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textures[0]);
         myShader.setInt("textures[0]", 0);
@@ -118,12 +125,25 @@ int main() {
         myShader.setInt("selTex", 2);
     
         //processInput(window);
+            //wasd
         myCamera.processInput(window);
+            //mouse
+        if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
+        {
+            glfwSetCursorPosCallback(window, myCamera.mouseCallbackWrapper);
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        else {
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            glfwSetCursorPosCallback(window, NULL);
+        }
 
+        //use shader programe
         myShader.use();
 
         glBindVertexArray(VAOs[0]);
 
+        //transformations
         glm::mat4 view = myCamera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 1000.0f);
         glm::mat4 model = glm::mat4(1.0f);
@@ -133,13 +153,14 @@ int main() {
         myShader.setMat4("view", view);
         myShader.setMat4("projection", projection);
         myShader.setMat4("model", model);
- 
+
+        //draw element
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    //delete dynamic memory
     glDeleteVertexArrays(1, &VAOs[0]);
     glDeleteBuffers(1, &VBOs[0]);
     glDeleteBuffers(1, &EBOs[0]);
@@ -149,10 +170,12 @@ int main() {
     return 0;
 }
 
+//frame buffer size function
 void frameBufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
+//texture set function
 void setTexData(const char* fileName) {
     
     int width, height, nrChannels;
