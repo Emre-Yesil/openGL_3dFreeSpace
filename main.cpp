@@ -160,7 +160,7 @@ int main() {
 
         //transformations
         glm::mat4 view = myCamera.getViewMatrix();
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), float(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 10000.0f);
+        glm::mat4 projection = glm::perspective(glm::radians(55.0f), float(WIN_WIDTH) / WIN_HEIGHT, 0.1f, 10000.0f);
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -100.0f, 0.0f));
 

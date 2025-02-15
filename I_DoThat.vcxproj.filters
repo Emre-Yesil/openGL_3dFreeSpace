@@ -18,10 +18,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\shader\glad.c">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="stb.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
       <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
